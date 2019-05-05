@@ -26,7 +26,7 @@ class Calculator
         return $this->result;
     }
 
-    public function computing($operation, $value)
+    public function computing($operation, $value = null)
     {
         $operationObj = $this->operationsKeys[$operation];
 

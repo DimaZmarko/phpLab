@@ -8,18 +8,17 @@ use Calculator\Commands\CommandsList\PowCommand;
 
 class PowCommandTest extends TestCase
 {
-    protected $exponentiationInstance;
+    protected $powInstance;
 
     protected function setUp() : void
     {
-        $this->exponentiationInstance = new PowCommand();
+        $this->powInstance = new PowCommand();
     }
 
     public function testExecute()
     {
-        $this->assertEquals($this->exponentiationInstance->Execute(2, 2), 4);
+        $this->assertEquals($this->powInstance->Execute(2, 2), 4);
         $this->expectException(Exception::class);
-        $this->exponentiationInstance->Execute(2, 'frost');
+        $this->powInstance->Execute(2, 'aa');
     }
-
 }

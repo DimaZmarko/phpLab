@@ -20,7 +20,6 @@ class SubCommandTest extends TestCase
         $this->assertEquals($this->subtractionInstance->Execute(2, 2), 0);
 
         $this->expectException(Exception::class);
-        $this->subtractionInstance->Execute(2, 'frost');
+        $this->subtractionInstance->Execute(2, 'uu');
     }
-
 }

@@ -20,6 +20,6 @@ class SumCommandTest extends TestCase
         $this->assertEquals($this->addInstance->Execute(2, 2), 4);
 
         $this->expectException(Exception::class);
-        $this->addInstance->Execute(2, 'frost');
+        $this->addInstance->Execute(2, 'kk');
     }
 }
