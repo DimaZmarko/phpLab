@@ -88,16 +88,13 @@
                                 } ?>
                             </div>
                             <div class="row books_list">
+
                                 <?php
-                                for ($i = $pagesInputValue * ($currentPage - 1);
-                                     $i < ($pagesInputValue + ($pagesInputValue * ($currentPage - 1)));
-                                     $i++) {
-                                    if (!isset($booksToDisplay[$i])) {
-                                        break;
-                                    }
+                                foreach ($booksToDisplay as $book) {
                                     include 'loop/book.php';
                                 }
                                 ?>
+
                             </div>
                             <?php
                         }

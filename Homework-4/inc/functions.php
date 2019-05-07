@@ -4,10 +4,11 @@ session_start();
 require_once "books.php";
 
 $bookTags = [];
-$pagesInputValue = 6;
-$currentPage = 1;
+$pagesInputValue = isset($_SESSION["books_per_page"]) ? $_SESSION["books_per_page"] : 6;
+$currentPage = isset($_GET['page']) ? $_GET['page'] : 1;
 $booksToDisplay = [];
 $searchResults = true;
+$offset = ($currentPage - 1) * $pagesInputValue;
 
 /**
  * Get all tags
@@ -48,13 +49,6 @@ if ($booksCount <= 0) {
     $searchResults = false;
 }
 
-if (isset($_SESSION["books_per_page"])) {
-    $pagesInputValue = $_SESSION["books_per_page"];
-}
-
-if (isset($_GET["page"])) {
-    $currentPage = $_GET["page"];
-}
 
 /**
  * Order BY
@@ -76,15 +70,13 @@ if (isset($_COOKIE["price_name"])) {
 if (isset($_COOKIE["tags"])) {
 
     $bookIndexesToUnset = [];
-    unserialize($_COOKIE["tags"]);
+    $currentTags = unserialize($_COOKIE["tags"]);
 
     for ($i = 0; $i < count($booksToDisplay); $i++) {
-        if (!array_key_exists('tags', $booksToDisplay[$i])) {
-            $bookIndexesToUnset[] = $i;
-            continue;
-        }
 
-        if (count(array_intersect($booksToDisplay[$i]["tags"], unserialize($_COOKIE["tags"]))) === 0) {
+        if (!array_key_exists('tags', $booksToDisplay[$i])
+            || count(array_intersect($booksToDisplay[$i]["tags"], $currentTags)) === 0) {
+
             $bookIndexesToUnset[] = $i;
         }
     }
@@ -96,22 +88,26 @@ if (isset($_COOKIE["tags"])) {
     $booksToDisplay = array_values($booksToDisplay);
 }
 
+/**
+ * PAGES FOR PAGINATION
+ */
 $pageCount = ceil(count($booksToDisplay) / $pagesInputValue);
+
+/**
+ * BOOKS ARRAY FOR CURRENT PAGE
+ */
+$booksToDisplay = array_slice($booksToDisplay, $offset, $pagesInputValue);
 
 function checkOrderCookies($value)
 {
-    if (isset($_COOKIE["price_name"])) {
-        if ($_COOKIE["price_name"] === $value) {
-            return "checked = 'checked'";
-        }
+    if (isset($_COOKIE["price_name"]) && $_COOKIE["price_name"] === $value) {
+        return "checked = 'checked'";
     }
 }
 
 function checkTagCookies($value)
 {
-    if (isset($_COOKIE["tags"])) {
-        if (in_array($value, unserialize($_COOKIE["tags"]))) {
-            return "checked = 'checked'";
-        }
+    if (isset($_COOKIE["tags"]) && in_array($value, unserialize($_COOKIE["tags"]))) {
+        return "checked = 'checked'";
     }
 }
