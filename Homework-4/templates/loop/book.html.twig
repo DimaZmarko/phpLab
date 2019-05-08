@@ -1,0 +1,30 @@
+
+<div class="col-12 col-md-6 d-flex" id="{{ book['isbn'] }}">
+    <div class="book_item">
+        <h2>{{ book['name'] }}</h2>
+        {% if book['tags'] is defined %}
+            <ul class="book_tags">
+                {% for tag in book['tags'] %}
+                    <li>
+                        <a href="#" data-target="{{ tag }}">{{ tag }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <p class="book_image">
+            <a target="_blank" href="{{ book['poster'] }}">
+                <img src="{{ book['poster'] }}" alt="poster">
+            </a>
+        </p>
+        <p class="book_url">
+            <span>URL: </span>
+            <a target="_blank" href="{{ book['url'] }}">
+                {{ book['url'] }}
+            </a>
+        </p>
+        <p class="book_price">PRICE:
+            <span>{{ book['price'] }}</span>
+        </p>
+    </div>
+</div>

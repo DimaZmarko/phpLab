@@ -98,16 +98,3 @@ $pageCount = ceil(count($booksToDisplay) / $pagesInputValue);
  */
 $booksToDisplay = array_slice($booksToDisplay, $offset, $pagesInputValue);
 
-function checkOrderCookies($value)
-{
-    if (isset($_COOKIE["price_name"]) && $_COOKIE["price_name"] === $value) {
-        return "checked = 'checked'";
-    }
-}
-
-function checkTagCookies($value)
-{
-    if (isset($_COOKIE["tags"]) && in_array($value, unserialize($_COOKIE["tags"]))) {
-        return "checked = 'checked'";
-    }
-}
