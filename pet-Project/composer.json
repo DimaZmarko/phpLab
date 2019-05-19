@@ -1,0 +1,11 @@
+{
+    "require": {
+        "symfony/http-foundation": "^4.2",
+        "fzaninotto/faker": "^1.8"
+    },
+    "autoload": {
+        "files": [
+            "./core/kernel.php"
+        ]
+    }
+}
