@@ -1,0 +1,59 @@
+{% extends 'layout/admin.html.twig' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">All Quizes</div>
+
+                    <div class="card-body">
+
+                        <div>
+
+                            <div class="py-2">
+                                <a class="btn btn-primary" href="{{ path('adminAddQuiz') }}" role="button">Add new Quiz</a>
+                            </div>
+                            {% if quizes is defined and quizes | length > 0 %}
+                                <div>
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Quiz</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for quiz in quizes %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ path('adminEditQuiz',{'id': quiz.id }) }}">{{ quiz.title }}</a>
+                                                </td>
+                                                <td>
+                                                    <form action="{{ path('adminEditQuiz',{'id': quiz.id }) }}"
+                                                          class="form-horizontal" method="GET">
+                                                        <button type="submit" class="btn btn-info">Edit</button>
+                                                    </form>
+                                                </td>
+                                                <td>
+                                                    <form action="{{ path('adminDeleteQuiz',{'id': quiz.id }) }}"
+                                                          class="form-horizontal" method="POST">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
