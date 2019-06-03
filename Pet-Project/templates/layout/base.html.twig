@@ -45,9 +45,9 @@
                     {% endfor %}
                 </ul>
             </div>
-        {% elseif success is defined and success is not empty %}
+        {% elseif app.request.get('success') is defined and app.request.get('success') is not empty %}
             <div class="alert alert-success">
-                {{ success }}
+                {{ app.request.get('success') }}
             </div>
         {% endif %}
 

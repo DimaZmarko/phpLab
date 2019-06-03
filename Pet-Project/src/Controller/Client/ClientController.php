@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Client;
 
 use App\Entity\Answer;
 use App\Entity\Quiz;
@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends AbstractController
 {
-
     /**
      * @Route("/", name="index")
      */
@@ -41,6 +40,12 @@ class ClientController extends AbstractController
             ->getRepository(Quiz::class)
             ->find($id);
 
+        if (!$quiz) {
+            throw $this->createNotFoundException(
+                'No quiz found for id '. $id
+            );
+        }
+
         $questions = $quiz->getQuestions()->toArray();
 
         return $this->render('quiz/singleQuiz.html.twig', [
@@ -57,7 +62,6 @@ class ClientController extends AbstractController
         $questionId = $request->get('questionId');
 
         $result = 0;
-
         $answerRepository = $this->getDoctrine()
             ->getRepository(Answer::class);
 
@@ -65,12 +69,12 @@ class ClientController extends AbstractController
 
             $answer = $answerRepository->findOneBy(array('correct' => 1, 'question' => $question));
 
-            if ($answer->getId() == $request->get('question_' . $question)) {
+            if ($answer && ($answer->getId() == $request->get('question_' . $question))) {
                 $result++;
             }
         }
 
-        return $this->render('quiz/quizResult.html.twig', [
+        return $this->render('quiz/resultQuiz.html.twig', [
             'result' => $result
         ]);
     }
