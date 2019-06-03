@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Psr\Log\LoggerInterface;
 
 class AnswerController extends AbstractController
 {
@@ -47,17 +48,19 @@ class AnswerController extends AbstractController
     /**
      * @Route("/admin/answer/{id}", name="adminEditAnswer", requirements={"id"="\d+"})
      */
-    public function adminEditAnswer(ValidatorInterface $validator, Request $request, $id)
+    public function adminEditAnswer( ValidatorInterface $validator, Request $request, $id)
     {
-        if ($request->isMethod('post')) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $answer = $entityManager->getRepository(Answer::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $answer = $entityManager->getRepository(Answer::class)->find($id);
 
-            if (!$answer) {
-                throw $this->createNotFoundException(
-                    'No answer found for id '. $id
-                );
-            }
+        if (!$answer) {
+            throw $this->createNotFoundException(
+                'No answer found for id '. $id
+            );
+        }
+
+        if ($request->isMethod('post')) {
+
             $answer->setContent($request->get('content'));
             $answer->setCorrect($request->get('correct'));
             $entityManager->flush();
@@ -73,10 +76,6 @@ class AnswerController extends AbstractController
                 'id' => $id,
                 'success' => 'Answer Edited']);
         }
-
-        $answer = $this->getDoctrine()
-            ->getRepository(Answer::class)
-            ->find($id);
 
         return $this->render('admin/editAnswer.html.twig', [
             'answer' => $answer

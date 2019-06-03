@@ -49,15 +49,17 @@ class QuestionController extends AbstractController
      */
     public function adminEditQuestion(ValidatorInterface $validator, Request $request, $id)
     {
-        if ($request->isMethod('post')) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $question = $entityManager->getRepository(Question::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $question = $entityManager->getRepository(Question::class)->find($id);
 
-            if (!$question) {
-                throw $this->createNotFoundException(
-                    'No question found for id ' . $id
-                );
-            }
+        if (!$question) {
+            throw $this->createNotFoundException(
+                'No question found for id ' . $id
+            );
+        }
+
+        if ($request->isMethod('post')) {
+
             $question->setContent($request->get('content'));
 
             $entityManager->flush();
@@ -73,10 +75,6 @@ class QuestionController extends AbstractController
                 'id' => $id,
                 'success' => 'Question Edited']);
         }
-
-        $question = $this->getDoctrine()
-            ->getRepository(Question::class)
-            ->find($id);
 
         $answers = $question->getAnswers()->toArray();
 

@@ -44,15 +44,17 @@ class QuizController extends AbstractController
      */
     public function adminEditQuiz(ValidatorInterface $validator, Request $request, $id)
     {
-        if ($request->isMethod('post')) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $quiz = $entityManager->getRepository(Quiz::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $quiz = $entityManager->getRepository(Quiz::class)->find($id);
 
-            if (!$quiz) {
-                throw $this->createNotFoundException(
-                    'No quiz found for id ' . $id
-                );
-            }
+        if (!$quiz) {
+            throw $this->createNotFoundException(
+                'No quiz found for id ' . $id
+            );
+        }
+
+        if ($request->isMethod('post')) {
+
             $quiz->setTitle($request->get('title'));
             $quiz->setDescription($request->get('description'));
 
@@ -69,10 +71,6 @@ class QuizController extends AbstractController
                 'id' => $id,
                 'success' => 'Quiz Edited']);
         }
-
-        $quiz = $this->getDoctrine()
-            ->getRepository(Quiz::class)
-            ->find($id);
 
         $questions = $quiz->getQuestions()->toArray();
 
