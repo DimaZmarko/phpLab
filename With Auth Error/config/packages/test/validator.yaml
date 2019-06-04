@@ -1,3 +1,0 @@
-framework:
-    validation:
-        disable_not_compromised_password: true
