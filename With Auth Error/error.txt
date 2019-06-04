@@ -1,0 +1,3 @@
+[2019-06-04 02:40:47] security.DEBUG: Checking for guard authentication credentials. {"firewall_key":"main","authenticators":1} []
+[2019-06-04 02:40:47] security.DEBUG: Checking support on guard authenticator. {"firewall_key":"main","authenticator":"App\\Security\\LoginFormAuthAuthenticator"} []
+[2019-06-04 02:40:47] security.DEBUG: Guard authenticator does not support the request. {"firewall_key":"main","authenticator":"App\\Security\\LoginFormAuthAuthenticator"} []
