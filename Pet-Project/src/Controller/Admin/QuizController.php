@@ -2,38 +2,52 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Quiz;
+use App\Services\QuizService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class QuizController extends AbstractController
 {
     /**
+     * @var QuizService
+     */
+    private $quizService;
+
+    /**
+     * QuizController constructor.
+     * @param QuizService $quizService
+     */
+    public function __construct(
+        QuizService $quizService
+    ) {
+        $this->quizService = $quizService;
+    }
+
+    /**
      * @Route("/admin/quiz/create", name="adminAddQuiz")
      */
-    public function adminAddQuiz(ValidatorInterface $validator, Request $request)
+    public function adminAddQuiz( Request $request)
     {
         if ($request->isMethod('post')) {
 
-            $entityManager = $this->getDoctrine()->getManager();
+            $args = [
+                'title' => $request->get('title'),
+                'desc' => $request->get('description')
+            ];
 
-            $quiz = new Quiz();
-            $quiz->setTitle($request->get('title'));
-            $quiz->setDescription($request->get('description'));
+            $newQuiz = $this->quizService->create($args);
 
-            $entityManager->persist($quiz);
-            $entityManager->flush();
-
-            $errors = $validator->validate($quiz);
-            if (count($errors) > 0) {
-                return $this->redirectToRoute('adminAddQuiz', ['errors' => (string)$errors]);
+            if (count($newQuiz['errors']) > 0) {
+                return $this->redirectToRoute('adminAddQuiz', [
+                    'errors' => (string)$newQuiz['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditQuiz', [
-                'id' => $quiz->getId(),
-                'success' => 'Quiz Created']);
+                'id' => $newQuiz['id'],
+                'success' => 'Quiz Created'
+            ]);
         }
 
         return $this->render('admin/addQuiz.html.twig');
@@ -42,41 +56,35 @@ class QuizController extends AbstractController
     /**
      * @Route("/admin/quiz/{id}", name="adminEditQuiz", requirements={"id"="\d+"})
      */
-    public function adminEditQuiz(ValidatorInterface $validator, Request $request, $id)
+    public function adminEditQuiz(Request $request, $id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $quiz = $entityManager->getRepository(Quiz::class)->find($id);
-
-        if (!$quiz) {
-            throw $this->createNotFoundException(
-                'No quiz found for id ' . $id
-            );
-        }
-
         if ($request->isMethod('post')) {
 
-            $quiz->setTitle($request->get('title'));
-            $quiz->setDescription($request->get('description'));
+            $args = [
+                'title' => $request->get('title'),
+                'desc' => $request->get('description')
+            ];
 
-            $entityManager->flush();
+            $editQuiz = $this->quizService->edit($args, $id);
 
-            $errors = $validator->validate($quiz);
-            if (count($errors) > 0) {
+            if (count($editQuiz['errors']) > 0) {
                 return $this->redirectToRoute('adminEditQuiz', [
                     'id' => $id,
-                    'errors' => (string)$errors]);
+                    'errors' => (string)$editQuiz['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditQuiz', [
                 'id' => $id,
-                'success' => 'Quiz Edited']);
+                'success' => 'Quiz Edited'
+            ]);
         }
 
-        $questions = $quiz->getQuestions()->toArray();
+        $quiz = $this->quizService->getQuiz($id);
 
         return $this->render('admin/editQuiz.html.twig', [
             'quiz' => $quiz,
-            'questions' => $questions
+            'questions' => $quiz->getQuestions()->toArray()
         ]);
     }
 
@@ -85,19 +93,7 @@ class QuizController extends AbstractController
      */
     public function adminDeleteQuiz($id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $quiz = $entityManager->getRepository(Quiz::class)
-            ->find($id);
-
-        if (!$quiz) {
-            throw $this->createNotFoundException(
-                'No quiz found for id ' . $id
-            );
-        }
-
-        $entityManager->remove($quiz);
-        $entityManager->flush();
-
+        $this->quizService->delete($id);
         return $this->redirectToRoute('admin', ['success' => 'Quiz Deleted']);
     }
 }

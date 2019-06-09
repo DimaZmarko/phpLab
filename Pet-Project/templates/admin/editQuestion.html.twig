@@ -53,10 +53,7 @@
                                             <a href="{{ path('adminEditAnswer',{'id': answer.id }) }}">{{ answer.content }}</a>
                                         </td>
                                         <td>
-                                            <form action="{{ path('adminEditAnswer',{'id': answer.id }) }}"
-                                                  class="form-horizontal" method="GET">
-                                                <button type="submit" class="btn btn-info">Edit</button>
-                                            </form>
+                                            <a class="btn btn-info" href="{{ path('adminEditAnswer',{'id': answer.id }) }}" role="button">Edit</a>
                                         </td>
                                         <td>
                                             <form action="{{ path('adminDeleteAnswer',{'id': answer.id }) }}"

@@ -2,43 +2,52 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Question;
-use App\Entity\Quiz;
+use App\Services\QuestionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class QuestionController extends AbstractController
 {
     /**
+     * @var QuestionService
+     */
+    private $questionService;
+
+    /**
+     * QuestionController constructor.
+     * @param QuestionService $questionService
+     */
+    public function __construct(
+        QuestionService $questionService
+    ) {
+        $this->questionService = $questionService;
+    }
+
+    /**
      * @Route("/admin/question/create", name="adminAddQuestion")
      */
-    public function adminAddQuestion(ValidatorInterface $validator, Request $request)
+    public function adminAddQuestion(Request $request)
     {
         if ($request->isMethod('post')) {
 
-            $parentQuiz = $request->get('parent_id');
+            $args = [
+                'content' => $request->get('content'),
+                'parent_id' => $request->get('parent_id')
+            ];
+            $newQuestion = $this->questionService->create($args);
 
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $quiz = $entityManager->getRepository(Quiz::class)->find($parentQuiz);
-
-            $question = new Question();
-            $question->setContent($request->get('content'));
-            $question->setQuiz($quiz);
-
-            $entityManager->persist($question);
-            $entityManager->flush();
-
-            $errors = $validator->validate($question);
-            if (count($errors) > 0) {
-                return $this->redirectToRoute('adminAddQuestion', ['errors' => (string)$errors]);
+            if (count($newQuestion['errors']) > 0) {
+                return $this->redirectToRoute('adminAddQuestion', [
+                    'parent_id' => $request->get('parent_id'),
+                    'errors' => (string)$newQuestion['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditQuestion', [
-                'id' => $question->getId(),
-                'success' => 'Question Created']);
+                'id' => $newQuestion['id'],
+                'success' => 'Question Created'
+            ]);
         }
 
         return $this->render('admin/addQuestion.html.twig');
@@ -47,40 +56,33 @@ class QuestionController extends AbstractController
     /**
      * @Route("/admin/question/{id}", name="adminEditQuestion", requirements={"id"="\d+"})
      */
-    public function adminEditQuestion(ValidatorInterface $validator, Request $request, $id)
+    public function adminEditQuestion(Request $request, $id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $question = $entityManager->getRepository(Question::class)->find($id);
-
-        if (!$question) {
-            throw $this->createNotFoundException(
-                'No question found for id ' . $id
-            );
-        }
-
         if ($request->isMethod('post')) {
 
-            $question->setContent($request->get('content'));
+            $args = [
+                'content' => $request->get('content')
+            ];
+            $updateQuestion = $this->questionService->edit($args, $id);
 
-            $entityManager->flush();
-
-            $errors = $validator->validate($question);
-            if (count($errors) > 0) {
+            if (count($updateQuestion['errors']) > 0) {
                 return $this->redirectToRoute('adminEditQuestion', [
                     'id' => $id,
-                    'errors' => (string)$errors]);
+                    'errors' => (string)$updateQuestion['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditQuestion', [
                 'id' => $id,
-                'success' => 'Question Edited']);
+                'success' => 'Question Edited'
+            ]);
         }
 
-        $answers = $question->getAnswers()->toArray();
+        $question = $this->questionService->getQuestion($id);
 
         return $this->render('admin/editQuestion.html.twig', [
             'question' => $question,
-            'answers' => $answers
+            'answers' => $question->getAnswers()->toArray()
         ]);
     }
 
@@ -89,19 +91,7 @@ class QuestionController extends AbstractController
      */
     public function adminDeleteQuestion($id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $question = $entityManager->getRepository(Question::class)
-            ->find($id);
-
-        if (!$question) {
-            throw $this->createNotFoundException(
-                'No question found for id ' . $id
-            );
-        }
-
-        $entityManager->remove($question);
-        $entityManager->flush();
-
+        $this->questionService->delete($id);
         return $this->redirectToRoute('admin', ['success' => 'Question Deleted']);
     }
 }

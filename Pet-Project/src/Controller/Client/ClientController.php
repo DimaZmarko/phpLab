@@ -2,8 +2,8 @@
 
 namespace App\Controller\Client;
 
-use App\Entity\Answer;
-use App\Entity\Quiz;
+use App\Repository\AnswerRepository;
+use App\Repository\QuizRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,19 +11,38 @@ use Symfony\Component\Routing\Annotation\Route;
 class ClientController extends AbstractController
 {
     /**
+     * @var QuizRepository
+     */
+    private $quizRepository;
+    /**
+     * @var AnswerRepository
+     */
+    private $answerRepository;
+
+    /**
+     * ClientController constructor.
+     * @param QuizRepository $quizRepository
+     * @param AnswerRepository $answerRepository
+     */
+    public function __construct(
+        QuizRepository $quizRepository,
+        AnswerRepository $answerRepository
+    )
+    {
+        $this->quizRepository = $quizRepository;
+        $this->answerRepository = $answerRepository;
+    }
+    /**
      * @Route("/", name="index")
      */
     public function index(Request $request)
     {
-        $quizRepository = $this->getDoctrine()
-            ->getRepository(Quiz::class);
-
         $search = $request->get('search');
         if ($search) {
-            $quizes = $quizRepository->search($search);
+            $quizes = $this->quizRepository->search($search);
 
         } else {
-            $quizes = $quizRepository->findAll();
+            $quizes = $this->quizRepository->findAll();
         }
 
         return $this->render('quiz/index.html.twig', [
@@ -36,9 +55,7 @@ class ClientController extends AbstractController
      */
     public function quizById($id)
     {
-        $quiz = $this->getDoctrine()
-            ->getRepository(Quiz::class)
-            ->find($id);
+        $quiz = $this->quizRepository->find($id);
 
         if (!$quiz) {
             throw $this->createNotFoundException(
@@ -46,11 +63,9 @@ class ClientController extends AbstractController
             );
         }
 
-        $questions = $quiz->getQuestions()->toArray();
-
         return $this->render('quiz/singleQuiz.html.twig', [
             'quiz' => $quiz,
-            'questions' => $questions
+            'questions' => $quiz->getQuestions()->toArray()
         ]);
     }
 
@@ -60,14 +75,11 @@ class ClientController extends AbstractController
     public function quizResult(Request $request)
     {
         $questionId = $request->get('questionId');
-
         $result = 0;
-        $answerRepository = $this->getDoctrine()
-            ->getRepository(Answer::class);
 
         foreach ($questionId as $question) {
 
-            $answer = $answerRepository->findOneBy(array('correct' => 1, 'question' => $question));
+            $answer = $this->answerRepository->findOneBy(array('correct' => 1, 'question' => $question));
 
             if ($answer && ($answer->getId() == $request->get('question_' . $question))) {
                 $result++;

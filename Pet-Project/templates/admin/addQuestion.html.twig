@@ -20,6 +20,7 @@
                     <div class="card-header">Create new question</div>
                     <div class="card-body">
                         <form action="" class="form-horizontal" method="POST">
+                            <input type="hidden" name="parent_id" value="{{ app.request.get('parent_id') }}">
                             <div class="form-group">
 
                                 <label for="content">Question content</label>

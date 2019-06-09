@@ -2,44 +2,55 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Answer;
-use App\Entity\Question;
+use App\Services\AnswerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Psr\Log\LoggerInterface;
 
 class AnswerController extends AbstractController
 {
     /**
+     * @var AnswerService
+     */
+    private $answerService;
+
+    /**
+     * AnswerController constructor.
+     * @param AnswerService $answerService
+     */
+    public function __construct(
+        AnswerService $answerService
+    ) {
+        $this->answerService = $answerService;
+    }
+
+    /**
      * @Route("/admin/answer/create", name="adminAddAnswer")
      */
-    public function adminAddAnswer(ValidatorInterface $validator, Request $request)
+    public function adminAddAnswer(Request $request)
     {
         if ($request->isMethod('post')) {
 
-            $parentQuestion = $request->get('parent_id');
-            $entityManager = $this->getDoctrine()->getManager();
+            $args = [
+                'content' => $request->get('content'),
+                'parent_id' => $request->get('parent_id'),
+                'correct' => $request->get('correct')
+            ];
 
-            $question = $entityManager->getRepository(Question::class)->find($parentQuestion);
+            $newAnswer = $this->answerService->create($args);
 
-            $answer = new Answer();
-            $answer->setContent($request->get('content'));
-            $answer->setQuestion($question);
-            $answer->setCorrect($request->get('correct'));
+            if (count($newAnswer['errors']) > 0) {
 
-            $entityManager->persist($answer);
-            $entityManager->flush();
-
-            $errors = $validator->validate($answer);
-            if (count($errors) > 0) {
-                return $this->redirectToRoute('adminAddAnswer', ['errors' => (string) $errors]);
+                return $this->redirectToRoute('adminAddAnswer', [
+                    'parent_id' => $request->get('parent_id'),
+                    'errors' => (string)$newAnswer['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditAnswer', [
-                'id' => $answer->getId(),
-                'success' => 'Answer Created']);
+                'id' => $newAnswer['id'],
+                'success' => 'Answer Created'
+            ]);
         }
 
         return $this->render('admin/addAnswer.html.twig');
@@ -48,37 +59,32 @@ class AnswerController extends AbstractController
     /**
      * @Route("/admin/answer/{id}", name="adminEditAnswer", requirements={"id"="\d+"})
      */
-    public function adminEditAnswer( ValidatorInterface $validator, Request $request, $id)
+    public function adminEditAnswer(Request $request, $id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $answer = $entityManager->getRepository(Answer::class)->find($id);
-
-        if (!$answer) {
-            throw $this->createNotFoundException(
-                'No answer found for id '. $id
-            );
-        }
-
         if ($request->isMethod('post')) {
 
-            $answer->setContent($request->get('content'));
-            $answer->setCorrect($request->get('correct'));
-            $entityManager->flush();
+            $args = [
+                'content' => $request->get('content'),
+                'correct' => $request->get('correct')
+            ];
 
-            $errors = $validator->validate($answer);
-            if (count($errors) > 0) {
+            $editAnswer = $this->answerService->edit($args, $id);
+
+            if (count($editAnswer['errors']) > 0) {
                 return $this->redirectToRoute('adminEditAnswer', [
                     'id' => $id,
-                    'errors' => (string) $errors]);
+                    'errors' => (string)$editAnswer['errors']
+                ]);
             }
 
             return $this->redirectToRoute('adminEditAnswer', [
                 'id' => $id,
-                'success' => 'Answer Edited']);
+                'success' => 'Answer Edited'
+            ]);
         }
 
         return $this->render('admin/editAnswer.html.twig', [
-            'answer' => $answer
+            'answer' => $this->answerService->getAnswer($id)
         ]);
     }
 
@@ -87,19 +93,7 @@ class AnswerController extends AbstractController
      */
     public function adminDeleteAnswer($id)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $answer = $entityManager->getRepository(Answer::class)
-            ->find($id);
-
-        if (!$answer) {
-            throw $this->createNotFoundException(
-                'No answer found for id '. $id
-            );
-        }
-
-        $entityManager->remove($answer);
-        $entityManager->flush();
-
+        $this->answerService->delete($id);
         return $this->redirectToRoute('admin', ['success' => 'Answer Deleted']);
     }
 }
