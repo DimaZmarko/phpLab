@@ -48,6 +48,14 @@ class QuizService
     }
 
     /**
+     * @return Quiz[]
+     */
+    public function getAllQuizzes()
+    {
+        return $this->quizRepository->findAll();
+    }
+
+    /**
      * @param int $id
      * @return Quiz|null
      */

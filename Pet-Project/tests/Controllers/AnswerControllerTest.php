@@ -5,9 +5,7 @@ namespace App\Tests\Controllers;
 use App\Controller\Admin\AnswerController;
 use App\Services\AnswerService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-
 
 class AnswerControllerTest extends WebTestCase
 {
@@ -36,7 +34,6 @@ class AnswerControllerTest extends WebTestCase
 
     public function testAdminAddAnswer()
     {
-
         $id = 1;
 
         $this->requestMock
@@ -58,14 +55,6 @@ class AnswerControllerTest extends WebTestCase
             ->method('create')
             ->with(['content' => 'test', 'parent_id' => 1, 'correct' => 1])
             ->willReturn(['errors'=> [], 'id' => $id]);
-
-
-        $redirectMock = $this->getMockBuilder(RedirectResponse::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $redirectMock->expects($this->once())
-            ->method('redirectToRoute');
 
         $this->answerController->adminAddAnswer($this->requestMock);
 

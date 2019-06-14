@@ -28,10 +28,10 @@ class AdminController extends AbstractController
      */
     public function index()
     {
-        $quizes = $this->quizRepository->findAll();
+        $quizzes = $this->quizRepository->findAll();
 
         return $this->render('admin/index.html.twig', [
-            'quizes' => $quizes
+            'quizzes' => $quizzes
         ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Repository\AnswerRepository;
 use App\Repository\QuizRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends AbstractController
@@ -27,11 +28,11 @@ class ClientController extends AbstractController
     public function __construct(
         QuizRepository $quizRepository,
         AnswerRepository $answerRepository
-    )
-    {
+    ) {
         $this->quizRepository = $quizRepository;
         $this->answerRepository = $answerRepository;
     }
+
     /**
      * @Route("/", name="index")
      */
@@ -39,14 +40,14 @@ class ClientController extends AbstractController
     {
         $search = $request->get('search');
         if ($search) {
-            $quizes = $this->quizRepository->search($search);
+            $quizzes = $this->quizRepository->search($search);
 
         } else {
-            $quizes = $this->quizRepository->findAll();
+            $quizzes = $this->quizRepository->findAll();
         }
 
         return $this->render('quiz/index.html.twig', [
-            'quizes' => $quizes
+            'quizzes' => $quizzes
         ]);
     }
 
@@ -58,8 +59,8 @@ class ClientController extends AbstractController
         $quiz = $this->quizRepository->find($id);
 
         if (!$quiz) {
-            throw $this->createNotFoundException(
-                'No quiz found for id '. $id
+            throw new NotFoundHttpException(
+                'No quiz found for id ' . $id
             );
         }
 

@@ -1,6 +1,6 @@
 {% extends 'layout/base.html.twig' %}
 
-{% block title %}Quizes{% endblock %}
+{% block title %}Quizzes{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -44,14 +44,14 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">All Quizes</div>
+                    <div class="card-header">All Quizzes</div>
 
                     <div class="card-body">
                         <div class="list-group">
 
-                            {% if quizes is defined and quizes | length > 0 %}
+                            {% if quizzes is defined and quizzes | length > 0 %}
 
-                                {% for quiz in quizes %}
+                                {% for quiz in quizzes %}
                                     <a href="{{ path('quizById', {'id' : quiz.id}) }}"
                                        class="list-group-item list-group-item-action flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
@@ -63,7 +63,7 @@
 
                             {% else %}
                                 <div class="p-2">
-                                    No Quizes
+                                    No Quizzes
                                 </div>
                             {% endif %}
                         </div>

@@ -56,6 +56,14 @@ class QuestionService
     }
 
     /**
+     * @return Question[]
+     */
+    public function getAllQuestion()
+    {
+        return $this->questionRepository->findAll();
+    }
+
+    /**
      * @param int $id
      * @return Question|null
      */

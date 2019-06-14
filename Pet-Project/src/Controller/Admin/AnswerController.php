@@ -46,13 +46,11 @@ class AnswerController extends AbstractController
                     'errors' => (string)$newAnswer['errors']
                 ]);
             }
-
             return $this->redirectToRoute('adminEditAnswer', [
                 'id' => $newAnswer['id'],
                 'success' => 'Answer Created'
             ]);
         }
-
         return $this->render('admin/addAnswer.html.twig');
     }
 
@@ -70,19 +68,19 @@ class AnswerController extends AbstractController
 
             $editAnswer = $this->answerService->edit($args, $id);
 
+
             if (count($editAnswer['errors']) > 0) {
+
                 return $this->redirectToRoute('adminEditAnswer', [
                     'id' => $id,
                     'errors' => (string)$editAnswer['errors']
                 ]);
             }
-
             return $this->redirectToRoute('adminEditAnswer', [
                 'id' => $id,
                 'success' => 'Answer Edited'
             ]);
         }
-
         return $this->render('admin/editAnswer.html.twig', [
             'answer' => $this->answerService->getAnswer($id)
         ]);

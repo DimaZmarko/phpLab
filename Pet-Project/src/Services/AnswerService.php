@@ -56,6 +56,13 @@ class AnswerService
     }
 
     /**
+     * @return Answer[]
+     */
+    public function getAllAnswers()
+    {
+        return $this->answerRepository->findAll();
+    }
+    /**
      * @param int $id
      * @return Answer|null
      */
