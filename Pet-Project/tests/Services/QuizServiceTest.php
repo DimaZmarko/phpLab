@@ -83,6 +83,21 @@ class QuizServiceTest extends TestCase
 
     }
 
+    /**
+     * @dataProvider getAllQuizzesDataProvider
+     */
+    public function testGetAllQuizzes($quizzes, $expected)
+    {
+        $this->quizRepositoryMock
+            ->expects($this->any())
+            ->method('findAll')
+            ->willReturn($quizzes);
+
+        $result = $this->quizService->getAllQuizzes();
+
+        $this->assertEquals($expected, $result);
+    }
+
     public function testCreate()
     {
         $quiz = new Quiz();
@@ -198,6 +213,25 @@ class QuizServiceTest extends TestCase
             [$id, $quiz, $quiz]
         ];
     }
+
+    public function getAllQuizzesDataProvider()
+    {
+        $q1 = new Quiz();
+        $q1->setTitle('Name 1')
+            ->setDescription('Desc1');
+        $quiz1 = [$q1];
+
+        $q2 = new Quiz();
+        $q2->setTitle('Name 2')
+            ->setDescription('Desc2');
+        $quizzes2 = [$q1, $q2];
+
+        return [
+            [$quiz1, $quiz1],
+            [$quizzes2, $quizzes2]
+        ];
+    }
+
 
     public function getQuizDataProvider()
     {

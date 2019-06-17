@@ -65,7 +65,7 @@ class AnswerServiceTest extends TestCase
     /**
      * @dataProvider getOneAnswerDataProvider
      */
-    public function testGetQuestion($id, $answer, $expected)
+    public function testGetAnswer($id, $answer, $expected)
     {
         $this->answerRepositoryMock
             ->expects($this->any())
@@ -78,7 +78,7 @@ class AnswerServiceTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetQuizNegative()
+    public function testGetAnswerNegative()
     {
         $id = 999;
         $this->answerRepositoryMock
@@ -90,6 +90,21 @@ class AnswerServiceTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $this->answerService->getAnswer($id);
 
+    }
+
+    /**
+     * @dataProvider getAllAnswersDataProvider
+     */
+    public function testGetAllAnswers($answers, $expected)
+    {
+        $this->answerRepositoryMock
+            ->expects($this->any())
+            ->method('findAll')
+            ->willReturn($answers);
+
+        $result = $this->answerService->getAllAnswers();
+
+        $this->assertEquals($expected, $result);
     }
 
     public function testCreate()
@@ -129,6 +144,7 @@ class AnswerServiceTest extends TestCase
         $this->assertEquals($answer->getContent(), 'test');
         $this->assertEquals($answer->getCorrect(), 1);
     }
+
 
     /**
      * @dataProvider getAnswerDataProvider
@@ -216,6 +232,24 @@ class AnswerServiceTest extends TestCase
 
         return [
             [$id, $answer, $answer]
+        ];
+    }
+
+    public function getAllAnswersDataProvider()
+    {
+        $a1 = new Answer();
+        $a1->setContent('Name 1')
+            ->setCorrect(1);
+        $answer1 = [$a1];
+
+        $a2 = new Answer();
+        $a2->setContent('Name 2')
+            ->setCorrect(0);
+        $answers2 = [$a1, $a2];
+
+        return [
+            [$answer1, $answer1],
+            [$answers2, $answers2]
         ];
     }
 

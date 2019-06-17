@@ -78,7 +78,7 @@ class QuestionServiceTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetQuizNegative()
+    public function testGetQuestionNegative()
     {
         $id = 999;
         $this->questionRepositoryMock
@@ -90,6 +90,21 @@ class QuestionServiceTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $this->questionService->getQuestion($id);
 
+    }
+
+    /**
+     * @dataProvider getAllQuestionsDataProvider
+     */
+    public function testGetAllQuestions($questions, $expected)
+    {
+        $this->questionRepositoryMock
+            ->expects($this->any())
+            ->method('findAll')
+            ->willReturn($questions);
+
+        $result = $this->questionService->getAllQuestion();
+
+        $this->assertEquals($expected, $result);
     }
 
     public function testCreate()
@@ -185,6 +200,22 @@ class QuestionServiceTest extends TestCase
 
         return [
             [$id, $question, $question]
+        ];
+    }
+
+    public function getAllQuestionsDataProvider()
+    {
+        $q1 = new Question();
+        $q1->setContent('Name 1');
+        $question1 = [$q1];
+
+        $q2 = new Question();
+        $q2->setContent('Name 2');
+        $questions2 = [$q1, $q2];
+
+        return [
+            [$question1, $question1],
+            [$questions2, $questions2]
         ];
     }
 
